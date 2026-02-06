@@ -83,8 +83,11 @@ const About = () => {
       {/* Vision & Mission */}
       <Box sx={{ bgcolor: 'background.default', py: 8 }}>
         <Container maxWidth="lg">
+          <Typography variant="h4" gutterBottom fontWeight="bold" color="primary" align="center" sx={{ mb: 4 }}>
+            Visi & Misi
+          </Typography>
           <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">
@@ -96,7 +99,7 @@ const About = () => {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} sm={6}>
               <Card sx={{ height: '100%' }}>
                 <CardContent sx={{ p: 4 }}>
                   <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">

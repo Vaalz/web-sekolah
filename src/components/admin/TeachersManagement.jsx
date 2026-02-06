@@ -18,20 +18,26 @@ import {
   DialogActions,
   Grid,
   Avatar,
+  CircularProgress,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getFromLocalStorage, saveToLocalStorage, STORAGE_KEYS } from '../../utils/localStorage';
+import { supabase } from '../../services/supabase';
 
 const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    subject: '',
-    email: '',
+    mapel: '',
     image: '',
   });
 
@@ -39,18 +45,37 @@ const TeachersManagement = () => {
     loadTeachers();
   }, []);
 
-  const loadTeachers = () => {
-    const data = getFromLocalStorage(STORAGE_KEYS.TEACHERS);
-    setTeachers(data);
+  const loadTeachers = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('guru')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (error) throw error;
+      setTeachers(data || []);
+    } catch (error) {
+      console.error('Error loading teachers:', error.message);
+      setSnackbar({ open: true, message: 'Gagal memuat data guru', severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleOpenDialog = (teacher = null) => {
     if (teacher) {
       setEditingTeacher(teacher);
-      setFormData(teacher);
+      setFormData({
+        name: teacher.name || '',
+        mapel: teacher.mapel || '',
+        image: teacher.image || '',
+      });
+      setImagePreview(teacher.image || null);
     } else {
       setEditingTeacher(null);
-      setFormData({ name: '', subject: '', email: '', image: '' });
+      setFormData({ name: '', mapel: '', image: '' });
+      setImagePreview(null);
     }
     setOpenDialog(true);
   };
@@ -58,33 +83,129 @@ const TeachersManagement = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setEditingTeacher(null);
-    setFormData({ name: '', subject: '', email: '', image: '' });
+    setFormData({ name: '', mapel: '', image: '' });
+    setImagePreview(null);
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = () => {
-    let updatedTeachers;
-    if (editingTeacher) {
-      updatedTeachers = teachers.map((t) =>
-        t.id === editingTeacher.id ? { ...formData, id: t.id } : t
-      );
-    } else {
-      const newTeacher = { ...formData, id: Date.now() };
-      updatedTeachers = [...teachers, newTeacher];
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setSnackbar({ open: true, message: 'File harus berupa gambar', severity: 'error' });
+      return;
     }
-    saveToLocalStorage(STORAGE_KEYS.TEACHERS, updatedTeachers);
-    setTeachers(updatedTeachers);
-    handleCloseDialog();
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setSnackbar({ open: true, message: 'Ukuran file maksimal 2MB', severity: 'error' });
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to Supabase Storage
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `teachers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('GURU')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('GURU')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image: publicUrl });
+      setSnackbar({ open: true, message: 'Gambar berhasil diupload', severity: 'success' });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setSnackbar({ open: true, message: 'Gagal upload gambar: ' + error.message, severity: 'error' });
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const handleDelete = (id) => {
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.mapel) {
+      setSnackbar({ open: true, message: 'Harap isi semua field yang wajib', severity: 'warning' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (editingTeacher) {
+        // Update existing teacher
+        const { error } = await supabase
+          .from('guru')
+          .update({
+            name: formData.name,
+            mapel: formData.mapel,
+            image: formData.image,
+          })
+          .eq('id', editingTeacher.id);
+
+        if (error) throw error;
+        setSnackbar({ open: true, message: 'Guru berhasil diperbarui', severity: 'success' });
+      } else {
+        // Insert new teacher
+        const { error } = await supabase
+          .from('guru')
+          .insert([{
+            name: formData.name,
+            mapel: formData.mapel,
+            image: formData.image,
+          }]);
+
+        if (error) throw error;
+        setSnackbar({ open: true, message: 'Guru berhasil ditambahkan', severity: 'success' });
+      }
+
+      loadTeachers();
+      handleCloseDialog();
+    } catch (error) {
+      console.error('Error saving teacher:', error.message);
+      setSnackbar({ open: true, message: 'Gagal menyimpan data guru: ' + error.message, severity: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus guru ini?')) {
-      const updatedTeachers = teachers.filter((t) => t.id !== id);
-      saveToLocalStorage(STORAGE_KEYS.TEACHERS, updatedTeachers);
-      setTeachers(updatedTeachers);
+      setLoading(true);
+      try {
+        const { error } = await supabase
+          .from('guru')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        setSnackbar({ open: true, message: 'Guru berhasil dihapus', severity: 'success' });
+        loadTeachers();
+      } catch (error) {
+        console.error('Error deleting teacher:', error.message);
+        setSnackbar({ open: true, message: 'Gagal menghapus guru: ' + error.message, severity: 'error' });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -103,45 +224,59 @@ const TeachersManagement = () => {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ bgcolor: 'primary.light' }}>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Foto</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Nama</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Mata Pelajaran</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Email</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Aksi</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {teachers.map((teacher) => (
-              <TableRow key={teacher.id}>
-                <TableCell>
-                  <Avatar src={teacher.image} alt={teacher.name} />
-                </TableCell>
-                <TableCell>{teacher.name}</TableCell>
-                <TableCell>{teacher.subject}</TableCell>
-                <TableCell>{teacher.email}</TableCell>
-                <TableCell>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleOpenDialog(teacher)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(teacher.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: 'primary.light' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Foto</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Nama</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Mata Pelajaran</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Aksi</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {teachers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} align="center">
+                    Belum ada data guru
+                  </TableCell>
+                </TableRow>
+              ) : (
+                teachers.map((teacher) => (
+                  <TableRow key={teacher.id}>
+                    <TableCell>
+                      <Avatar src={teacher.image} alt={teacher.name} />
+                    </TableCell>
+                    <TableCell>{teacher.name}</TableCell>
+                    <TableCell>{teacher.mapel}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleOpenDialog(teacher)}
+                        disabled={loading}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDelete(teacher.id)}
+                        disabled={loading}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       {/* Dialog Form */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -164,42 +299,91 @@ const TeachersManagement = () => {
               <TextField
                 fullWidth
                 label="Mata Pelajaran"
-                name="subject"
-                value={formData.subject}
+                name="mapel"
+                value={formData.mapel}
                 onChange={handleChange}
                 required
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="URL Foto"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                helperText="Masukkan URL foto guru"
-              />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  disabled={uploading}
+                  fullWidth
+                >
+                  {uploading ? 'Mengupload...' : 'Pilih Gambar dari Komputer'}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </Button>
+                
+                {imagePreview && (
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Avatar
+                      src={imagePreview}
+                      alt="Preview"
+                      sx={{ width: 120, height: 120, mx: 'auto', mb: 1 }}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      Preview Foto
+                    </Typography>
+                  </Box>
+                )}
+
+                <Typography variant="body2" color="text.secondary" align="center">
+                  atau
+                </Typography>
+
+                <TextField
+                  fullWidth
+                  label="URL Foto"
+                  name="image"
+                  value={formData.image}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setImagePreview(e.target.value);
+                  }}
+                  helperText="Masukkan URL foto guru (alternatif)"
+                  size="small"
+                />
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Batal</Button>
-          <Button variant="contained" onClick={handleSubmit}>
-            Simpan
+          <Button onClick={handleCloseDialog} disabled={uploading || loading}>
+            Batal
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={loading || uploading}
+          >
+            {loading ? 'Menyimpan...' : 'Simpan'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

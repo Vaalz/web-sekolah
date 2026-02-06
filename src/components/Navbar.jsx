@@ -22,7 +22,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { label: 'Beranda', path: '/' },
+    { label: 'Beranda', path: '/beranda' },
     { label: 'Tentang', path: '/tentang' },
     { label: 'Guru', path: '/guru' },
     { label: 'Prestasi', path: '/prestasi' },
@@ -68,25 +68,6 @@ const Navbar = () => {
             </ListItem>
           );
         })}
-
-        <ListItem disablePadding>
-          <ListItemButton
-            component={Link}
-            to="/admin"
-            sx={{
-              textAlign: 'center',
-              mx: 2,
-              mt: 2,
-              borderRadius: '12px',
-              bgcolor: 'primary.main',
-              color: 'white',
-              fontWeight: 600,
-              '&:hover': { bgcolor: 'primary.dark' },
-            }}
-          >
-            <ListItemText primary="Admin" />
-          </ListItemButton>
-        </ListItem>
       </List>
     </Box>
   );
@@ -176,25 +157,6 @@ const Navbar = () => {
                 );
               })}
             </Box>
-
-            {/* Admin button */}
-            <Button
-              component={Link}
-              to="/admin"
-              variant="contained"
-              sx={{
-                display: { xs: 'none', md: 'flex' },
-                bgcolor: 'primary.main',
-                color: 'white',
-                borderRadius: '12px',
-                px: 3,
-                fontWeight: 600,
-                boxShadow: '0 6px 16px rgba(25,118,210,0.3)',
-                '&:hover': { bgcolor: 'primary.dark' },
-              }}
-            >
-              Admin
-            </Button>
           </Toolbar>
         </Container>
       </AppBar>

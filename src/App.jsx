@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
@@ -13,6 +13,7 @@ import Extracurriculars from './pages/Extracurriculars';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import AdminDashboard from './pages/AdminDashboard';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import { initializeDefaultData } from './utils/localStorage';
 import { useEffect } from 'react';
 import './App.css';
@@ -31,14 +32,22 @@ function App() {
           <Navbar />
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Navigate to="/beranda" replace />} />
+              <Route path="/beranda" element={<Home />} />
               <Route path="/tentang" element={<About />} />
               <Route path="/guru" element={<Teachers />} />
               <Route path="/prestasi" element={<Achievements />} />
               <Route path="/ekstrakurikuler" element={<Extracurriculars />} />
               <Route path="/galeri" element={<Gallery />} />
               <Route path="/kontak" element={<Contact />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminDashboard />
+                  </ProtectedAdminRoute>
+                } 
+              />
             </Routes>
           </Box>
           <Footer />

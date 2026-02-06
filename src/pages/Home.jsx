@@ -11,7 +11,7 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import UtamaImage from '../assets/Image/Utama.png';
 import { getFromLocalStorage, STORAGE_KEYS } from '../utils/localStorage';
 
-const Home = () => {
+const    Home = () => {
   const [aboutData, setAboutData] = useState(null);
 
   useEffect(() => {
@@ -246,224 +246,203 @@ const Home = () => {
               </Typography>
             </Box>
 
-            <Grid container spacing={4}>
+            {/* Visi & Misi */}
+            <Box 
+              sx={{ 
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
+                gap: 3,
+                alignItems: 'stretch',
+                mb: 4,
+              }}
+            >
               {/* Visi */}
-              <Grid item xs={12}>
-                <Card
-                  elevation={0}
+              <Card
+                elevation={0}
+                sx={{
+                  flex: 1,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    transform: 'translateY(-12px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                    borderColor: 'primary.main',
+                  },
+                }}
+              >
+                <Box
                   sx={{
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-12px)',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                      borderColor: 'primary.main',
-                    },
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    p: 3,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <Box
                     sx={{
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      p: 3,
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: '16px',
+                      width: 64,
+                      height: 64,
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 2.5,
                     }}
                   >
-                    <Box
-                      sx={{
-                        bgcolor: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '16px',
-                        width: 64,
-                        height: 64,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mr: 2.5,
-                      }}
-                    >
-                      <VisibilityIcon sx={{ fontSize: 36, color: 'white' }} />
-                    </Box>
-                    <Typography variant="h4" fontWeight="700" color="white">
-                      Visi
-                    </Typography>
+                    <VisibilityIcon sx={{ fontSize: 36, color: 'white' }} />
                   </Box>
-                  <CardContent sx={{ p: 4 }}>
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        textAlign: 'justify', 
-                        lineHeight: 2,
-                        color: 'text.primary',
-                        fontSize: '1rem'
-                      }}
-                    >
-                      {aboutData.vision}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+                  <Typography variant="h4" fontWeight="700" color="white">
+                    Visi
+                  </Typography>
+                </Box>
+                <CardContent sx={{ p: 4 }}>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      textAlign: 'justify', 
+                      lineHeight: 2,
+                      color: 'text.primary',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    {aboutData.vision}
+                  </Typography>
+                </CardContent>
+              </Card>
 
               {/* Misi */}
-              <Grid item xs={12}>
-                <Card
-                  elevation={0}
+              <Card
+                elevation={0}
+                sx={{
+                  flex: 1,
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    transform: 'translateY(-12px)',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                    borderColor: 'secondary.main',
+                  },
+                }}
+              >
+                <Box
                   sx={{
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-12px)',
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                      borderColor: 'secondary.main',
-                    },
+                    background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    p: 3,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <Box
                     sx={{
-                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                      p: 3,
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: '16px',
+                      width: 64,
+                      height: 64,
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
+                      mr: 2.5,
                     }}
                   >
-                    <Box
-                      sx={{
-                        bgcolor: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '16px',
-                        width: 64,
-                        height: 64,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mr: 2.5,
-                      }}
-                    >
-                      <FlagIcon sx={{ fontSize: 36, color: 'white' }} />
-                    </Box>
-                    <Typography variant="h4" fontWeight="700" color="white">
-                      Misi
-                    </Typography>
+                    <FlagIcon sx={{ fontSize: 36, color: 'white' }} />
                   </Box>
-                  <CardContent sx={{ p: 4 }}>
-                    <Box component="ul" sx={{ pl: 3, m: 0 }}>
-                      {aboutData.mission.map((item, index) => (
-                        <Typography
-                          component="li"
-                          key={index}
-                          variant="body1"
-                          sx={{ 
-                            mb: 2, 
-                            textAlign: 'justify', 
-                            lineHeight: 2,
-                            color: 'text.primary',
-                            fontSize: '1rem',
-                            '&::marker': {
-                              color: 'secondary.main',
-                              fontWeight: 'bold',
-                            }
-                          }}
-                        >
-                          {item}
-                        </Typography>
-                      ))}
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Sejarah */}
-              <Grid item xs={12}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                      borderColor: 'success.main',
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                      p: 3,
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        bgcolor: 'rgba(255,255,255,0.2)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '16px',
-                        width: 64,
-                        height: 64,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        mr: 2.5,
-                      }}
-                    >
-                      <HistoryEduIcon sx={{ fontSize: 36, color: 'white' }} />
-                    </Box>
-                    <Typography variant="h4" fontWeight="700" color="white">
-                      Sejarah
-                    </Typography>
-                  </Box>
-                  <CardContent sx={{ p: 4 }}>
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
-                        textAlign: 'justify', 
-                        lineHeight: 2,
-                        color: 'text.primary',
-                        fontSize: '1rem',
-                        mb: 4
-                      }}
-                    >
-                      {aboutData.history}
-                    </Typography>
-                    <Box sx={{ textAlign: 'center', pt: 2 }}>
-                      <Button
-                        component={Link}
-                        to="/tentang"
-                        variant="contained"
-                        size="large"
-                        endIcon={<SchoolIcon />}
-                        sx={{
-                          px: 5,
-                          py: 1.8,
-                          borderRadius: 3,
+                  <Typography variant="h4" fontWeight="700" color="white">
+                    Misi
+                  </Typography>
+                </Box>
+                <CardContent sx={{ p: 4 }}>
+                  <Box component="ul" sx={{ pl: 3, m: 0 }}>
+                    {aboutData.mission.map((item, index) => (
+                      <Typography
+                        component="li"
+                        key={index}
+                        variant="body1"
+                        sx={{ 
+                          mb: 2, 
+                          textAlign: 'justify', 
+                          lineHeight: 2,
+                          color: 'text.primary',
                           fontSize: '1rem',
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
-                          },
-                          transition: 'all 0.3s ease',
+                          '&::marker': {
+                            color: 'secondary.main',
+                            fontWeight: 'bold',
+                          }
                         }}
                       >
-                        Selengkapnya Tentang Kami
-                      </Button>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+                        {item}
+                      </Typography>
+                    ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+
+            {/* Sejarah */}
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 4,
+                overflow: 'hidden',
+                border: '1px solid',
+                borderColor: 'divider',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'translateY(-12px)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                  borderColor: 'success.main',
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                  p: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <Box
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: '16px',
+                    width: 64,
+                    height: 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 2.5,
+                  }}
+                >
+                  <HistoryEduIcon sx={{ fontSize: 36, color: 'white' }} />
+                </Box>
+                <Typography variant="h4" fontWeight="700" color="white">
+                  Sejarah
+                </Typography>
+              </Box>
+              <CardContent sx={{ p: 4 }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    textAlign: 'justify', 
+                    lineHeight: 2,
+                    color: 'text.primary',
+                    fontSize: '1rem'
+                  }}
+                >
+                  {aboutData.history}
+                </Typography>
+              </CardContent>
+            </Card>
           </Container>
         </Box>
       )}
